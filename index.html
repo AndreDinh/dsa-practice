@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSA + React Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        #filters {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: transform .3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .problem-view {
+            display: none;
+        }
+
+        .problem-view.active {
+            display: block;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .problem-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .problem-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .difficulty {
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .easy {
+            background: #4caf50;
+            color: white;
+        }
+
+        .medium {
+            background: #ff9800;
+            color: white;
+        }
+
+        .hard {
+            background: #f44336;
+            color: white;
+        }
+
+        .problem-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .draggable-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .draggable {
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            padding: 15px 20px;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            cursor: move;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .draggable:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            border-left-color: #764ba2;
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .drop-zone {
+            min-height: 60px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .drop-zone.drag-over {
+            background: #e3f2fd;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .result.correct {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .code-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-left: 4px solid #4caf50;
+            text-align: left;
+        }
+
+        .code-box-header {
+            color: #4caf50;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .result.incorrect {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            color: #c62828;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4caf50;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 15px;
+            transition: width .4s;
+        }
+
+        .problem-list-view {
+            display: none;
+        }
+
+        .problem-list-view.active {
+            display: block;
+        }
+
+        .problem-list-item {
+            background: white;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .problem-list-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .problem-list-item.solved {
+            border-left-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .problem-info {
+            flex: 1;
+        }
+
+        .problem-list-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .solved-badge {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        @media(max-width:768px) {
+            .problem-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 DSA + React Practice</h1>
+            <p>Interactive drag & drop challenges</p>
+            <div class="stats">
+                <div class="stat-item">📚 <span id="totalProblems">0</span> Problems</div>
+                <div class="stat-item">✅ <span id="solvedCount">0</span> Solved</div>
+                <div class="stat-item">🏆 <span id="progressPercent">0</span>% Complete</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="filters">
+                <button class="btn" onclick="filterDifficulty('all')">All</button>
+                <button class="btn" onclick="filterDifficulty('easy')">Easy</button>
+                <button class="btn" onclick="filterDifficulty('medium')">Medium</button>
+                <button class="btn" onclick="filterDifficulty('hard')">Hard</button>
+            </div>
+
+            <div id="categoryView">
+                <h2>Choose a Topic</h2>
+                <div class="category-grid" id="categoryGrid"></div>
+            </div>
+
+            <div id="problemView" class="problem-view">
+                <button class="back-btn" onclick="backToCategories()">← Back to Categories</button>
+                <button class="back-btn" onclick="showProblemList()" style="margin-left: 10px;">📋 Problem List</button>
+
+                <!-- Problem List View -->
+                <div id="problemListView" class="problem-list-view">
+                    <h2 id="categoryTitle"></h2>
+                    <div id="problemListContainer"></div>
+                </div>
+
+                <!-- Problem Solving View -->
+                <div id="problemSolvingView">
+                    <div class="problem-header">
+                        <div class="problem-title" id="problemTitle"></div>
+                        <span class="difficulty" id="problemDifficulty"></span>
+                        <span> Problem <span id="currentProblem">1</span>/<span id="totalInCategory">1</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill">0%</div>
+                    </div>
+                    <div class="problem-content">
+                        <div>
+                            <p id="problemDescription"></p>
+                            <div class="draggable-items" id="draggableItems"></div>
+                            <div id="hint"
+                                style="display:none; background:#fff3e0; padding:10px; border-radius:6px; margin-top:10px;">
+                            </div>
+                            <div class="result" id="result"></div>
+                        </div>
+                        <div>
+                            <h3>🎯 Drop in correct order:</h3>
+                            <div id="dropZones"></div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn" onclick="checkAnswer()">Check</button>
+                        <button class="btn btn-secondary" onclick="resetProblem()">Reset</button>
+                        <button class="btn btn-secondary" onclick="showHint()">Hint</button>
+                        <button class="btn" onclick="nextProblem()">Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let problems = [
+            { id: 1, category: "Arrays", difficulty: "easy", title: "Binary Search Implementation", description: "Binary search finds a target value in a sorted array by repeatedly dividing the search space in half. Arrange these code lines to implement the algorithm correctly.", items: ["let mid = Math.floor((left + right) / 2);", "if (arr[mid] === target) return mid;", "if (arr[mid] > target) right = mid - 1;", "else left = mid + 1;", "while (left <= right) { ... }", "return -1;"], answer: [4, 0, 1, 2, 3, 5], hint: "Start with while loop, then calculate mid inside" },
+            { id: 8, category: "Linked Lists", difficulty: "easy", title: "Reverse Linked List", description: "Reverse a singly linked list iteratively using three pointers.", items: ["let prev = null, curr = head;", "while (curr !== null) {", "  let next = curr.next;", "  curr.next = prev;", "  prev = curr;", "  curr = next;", "}", "return prev;"], answer: [0, 1, 2, 3, 4, 5, 6, 7], hint: "Three pointers: prev, curr, next" },
+            { id: 31, category: "React", difficulty: "easy", title: "useState Hook", description: "Create a counter using useState hook.", items: ["import { useState } from 'react';", "function Counter() {", "  const [count, setCount] = useState(0);", "  return <button onClick={() => setCount(count + 1)}>", "    Count: {count}", "  </button>;", "}"], answer: [0, 1, 2, 3, 4, 5, 6], hint: "Import hook, destructure state, use in JSX" }
+        ];
+
+        let currentCategory = null, currentProblems = [], currentIndex = 0, solvedCount = 0, currentDifficultyFilter = "all", draggedItem = null;
+        let solvedProblems = new Set();
+
+        function filterDifficulty(level) {
+            currentDifficultyFilter = level;
+            document.getElementById("problemView").classList.remove("active");
+            document.getElementById("categoryView").style.display = "block";
+            loadCategories();
+        }
+
+        function loadCategories() {
+            const categories = {};
+            problems.forEach(p => {
+                if (currentDifficultyFilter === "all" || p.difficulty === currentDifficultyFilter) {
+                    categories[p.category] = (categories[p.category] || 0) + 1;
+                }
+            });
+            const grid = document.getElementById("categoryGrid");
+            grid.innerHTML = "";
+            Object.keys(categories).forEach(cat => {
+                const card = document.createElement("div");
+                card.className = "category-card";
+                card.innerHTML = `<h3>${cat}</h3><div>${categories[cat]} problems</div>`;
+                card.onclick = () => openCategory(cat);
+                grid.appendChild(card);
+            });
+            document.getElementById("totalProblems").textContent = currentDifficultyFilter === "all" ? problems.length : problems.filter(p => p.difficulty === currentDifficultyFilter).length;
+            document.getElementById("solvedCount").textContent = solvedProblems.size;
+        }
+
+        function openCategory(cat) {
+            currentCategory = cat;
+            currentProblems = problems.filter(p => p.category === cat && (currentDifficultyFilter === "all" || p.difficulty === currentDifficultyFilter));
+            currentIndex = 0;
+            document.getElementById("categoryView").style.display = "none";
+            document.getElementById("problemView").classList.add("active");
+            showProblemList();
+        }
+
+        function backToCategories() {
+            document.getElementById("problemView").classList.remove("active");
+            document.getElementById("categoryView").style.display = "block";
+        }
+
+        function showProblemList() {
+            document.getElementById("problemListView").classList.add("active");
+            document.getElementById("problemSolvingView").style.display = "none";
+            document.getElementById("categoryTitle").textContent = currentCategory;
+
+            const container = document.getElementById("problemListContainer");
+            container.innerHTML = "";
+
+            currentProblems.forEach((p, idx) => {
+                const item = document.createElement("div");
+                item.className = "problem-list-item" + (solvedProblems.has(p.id) ? " solved" : "");
+                item.onclick = () => selectProblem(idx);
+
+                const info = document.createElement("div");
+                info.className = "problem-info";
+
+                const title = document.createElement("div");
+                title.className = "problem-list-title";
+                title.textContent = `${idx + 1}. ${p.title}`;
+
+                info.appendChild(title);
+                item.appendChild(info);
+
+                const badges = document.createElement("div");
+                const diffBadge = document.createElement("span");
+                diffBadge.className = "difficulty " + p.difficulty;
+                diffBadge.textContent = p.difficulty.toUpperCase();
+                badges.appendChild(diffBadge);
+
+                if (solvedProblems.has(p.id)) {
+                    const solvedBadge = document.createElement("span");
+                    solvedBadge.className = "solved-badge";
+                    solvedBadge.textContent = "✓ Solved";
+                    badges.appendChild(solvedBadge);
+                }
+
+                item.appendChild(badges);
+                container.appendChild(item);
+            });
+        }
+
+        function selectProblem(idx) {
+            currentIndex = idx;
+            document.getElementById("problemListView").classList.remove("active");
+            document.getElementById("problemSolvingView").style.display = "block";
+            loadProblem();
+        }
+
+        function loadProblem() {
+            const p = currentProblems[currentIndex];
+            document.getElementById("problemTitle").textContent = p.title;
+            document.getElementById("problemDescription").textContent = p.description;
+            const diff = document.getElementById("problemDifficulty");
+            diff.className = "difficulty " + p.difficulty;
+            diff.textContent = p.difficulty.toUpperCase();
+            document.getElementById("currentProblem").textContent = currentIndex + 1;
+            document.getElementById("totalInCategory").textContent = currentProblems.length;
+
+            const itemsDiv = document.getElementById("draggableItems");
+            itemsDiv.innerHTML = "";
+            itemsDiv.addEventListener("dragover", dragOver);
+            itemsDiv.addEventListener("dragleave", dragLeave);
+            itemsDiv.addEventListener("drop", drop);
+
+            p.items.map((txt, idx) => ({ txt, idx })).sort(() => Math.random() - 0.5).forEach(item => {
+                const el = document.createElement("div");
+                el.className = "draggable";
+                el.draggable = true;
+                el.textContent = item.txt;
+                el.dataset.index = item.idx;
+                el.addEventListener("dragstart", dragStart);
+                el.addEventListener("dragend", dragEnd);
+                itemsDiv.appendChild(el);
+            });
+
+            const zones = document.getElementById("dropZones");
+            zones.innerHTML = "";
+            p.items.forEach(() => {
+                const dz = document.createElement("div");
+                dz.className = "drop-zone";
+                dz.addEventListener("dragover", dragOver);
+                dz.addEventListener("dragleave", dragLeave);
+                dz.addEventListener("drop", drop);
+                zones.appendChild(dz);
+            });
+            updateProgress();
+            document.getElementById("result").style.display = "none";
+            document.getElementById("hint").style.display = "none";
+        }
+
+        function dragStart(e) { draggedItem = e.target; e.target.classList.add("dragging"); }
+        function dragEnd(e) { e.target.classList.remove("dragging"); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); }
+        function dragOver(e) { e.preventDefault(); e.currentTarget.classList.add("drag-over"); }
+        function dragLeave(e) { e.currentTarget.classList.remove("drag-over"); }
+        function drop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove("drag-over");
+            if (!draggedItem) return;
+            const dropTarget = e.currentTarget;
+            if (dropTarget.id === 'draggableItems') {
+                dropTarget.appendChild(draggedItem);
+            } else if (dropTarget.classList.contains('drop-zone')) {
+                if (dropTarget.firstChild) {
+                    const existingItem = dropTarget.firstChild;
+                    const draggedParent = draggedItem.parentElement;
+                    dropTarget.appendChild(draggedItem);
+                    draggedParent.appendChild(existingItem);
+                } else {
+                    dropTarget.appendChild(draggedItem);
+                }
+            }
+        }
+
+        function checkAnswer() {
+            const order = [];
+            const zones = document.querySelectorAll("#dropZones .drop-zone");
+            zones.forEach(z => {
+                if (z.firstChild) order.push(Number(z.firstChild.dataset.index));
+            });
+            const p = currentProblems[currentIndex];
+            const correct = JSON.stringify(order) === JSON.stringify(p.answer);
+            const r = document.getElementById("result");
+            r.style.display = "block";
+            if (correct) {
+                r.className = "result correct";
+
+                // Build the complete code in correct order
+                const completeCode = p.answer.map(idx => p.items[idx]).join('\n');
+
+                r.innerHTML = `
+                    <div style="font-size: 18px; margin-bottom: 10px;">✅ <strong>Correct! Well done!</strong></div>
+                    <div class="code-box">
+                        <div class="code-box-header">Complete Solution:</div>
+                        ${completeCode}
+                    </div>
+                `;
+
+                solvedCount++;
+                document.getElementById("solvedCount").textContent = solvedCount;
+                updateProgress();
+            } else {
+                r.className = "result incorrect";
+
+                // Check if incomplete
+                if (order.length < p.answer.length) {
+                    r.innerHTML = `❌ <strong>Incomplete!</strong> You need to place ${p.answer.length - order.length} more item${p.answer.length - order.length > 1 ? 's' : ''} in the drop zones.`;
+                    return;
+                }
+
+                // Show detailed feedback for wrong positions
+                const wrongDetails = [];
+                order.forEach((item, idx) => {
+                    if (item !== p.answer[idx]) {
+                        const currentItem = p.items[item];
+                        const expectedItem = p.items[p.answer[idx]];
+                        wrongDetails.push({
+                            position: idx + 1,
+                            current: currentItem.length > 50 ? currentItem.substring(0, 50) + '...' : currentItem,
+                            expected: expectedItem.length > 50 ? expectedItem.substring(0, 50) + '...' : expectedItem
+                        });
+                    }
+                });
+
+                if (wrongDetails.length > 0) {
+                    let message = `❌ <strong>Not quite right!</strong> ${wrongDetails.length} position${wrongDetails.length > 1 ? 's' : ''} ${wrongDetails.length > 1 ? 'need' : 'needs'} fixing:<br><br>`;
+                    wrongDetails.forEach(detail => {
+                        message += `<strong>Position ${detail.position}:</strong><br>`;
+                        message += `&nbsp;&nbsp;You have: <em>"${detail.current}"</em><br>`;
+                        message += `&nbsp;&nbsp;Should be: <em>"${detail.expected}"</em><br><br>`;
+                    });
+                    r.innerHTML = message;
+                } else {
+                    r.textContent = "❌ Incorrect, try again!";
+                }
+            }
+        }
+
+        function resetProblem() { loadProblem(); }
+        function showHint() {
+            const h = document.getElementById("hint");
+            h.textContent = currentProblems[currentIndex].hint;
+            h.style.display = "block";
+        }
+        function nextProblem() {
+            if (currentIndex < currentProblems.length - 1) {
+                currentIndex++;
+                loadProblem();
+            } else {
+                alert("🎉 Finished this category!");
+                backToCategories();
+            }
+        }
+        function updateProgress() {
+            const percent = Math.round((solvedCount / problems.length) * 100);
+            document.getElementById("progressPercent").textContent = percent;
+            const fill = document.getElementById("progressFill");
+            fill.style.width = percent + "%";
+            fill.textContent = percent + "%";
+        }
+
+        window.onload = () => {
+            // Try to load external problems.js if available
+            const script = document.createElement('script');
+            script.src = 'problems.js';
+            script.onload = () => {
+                // problems.js loaded successfully, merge with test problems
+                if (window.additionalProblems) {
+                    problems = problems.concat(window.additionalProblems);
+                }
+                loadCategories();
+            };
+            script.onerror = () => {
+                // problems.js not found, use only test problems
+                console.log('Using test problems only');
+                loadCategories();
+            };
+            document.head.appendChild(script);
+        };
+    </script>
+</body>
+
+</html>
